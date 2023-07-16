@@ -1,0 +1,46 @@
+<div id="chatroom-container" class="row">
+    <div id="chatroom-left-panel" class="col-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="list-group" id="list-tab" role="tablist">
+                    <button *ngFor="let task of tasks" id="{{task}}" class="list-group-item list-group-item-action" [class.active]="activeChatRoom === task" (click)="changeChatroom(task)">{{ task }}               
+                    </button>               
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chatroom-right-panel" class="col-9">
+        <div class="row mb-2 justify-content-start">
+            <div class="col-9">
+                <mat-card>
+                    <mat-card-content>Siema co tam?</mat-card-content>
+                    <mat-card-actions align="end">
+                        <button mat-button>LIKE</button>
+                        <button mat-button>SHARE</button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>       
+        </div>
+        <div class="row">
+            <div class="col-10">
+                <form id="chatroom-main-form">
+                    <mat-form-field class="example-full-width">
+                      <mat-label>Leave a comment</mat-label>
+                      <textarea cdkTextareaAutosize matInput cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5" wrap="hard" placeholder="Text a message..."></textarea>
+                    </mat-form-field>
+                  </form>
+            </div>
+            <div class="col-2">
+                <button mat-mini-fab matTooltip="Primary" color="primary" aria-label="Example fab with a heart icon">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<mat-nav-list>
+	<mat-list-item [routerLink]="['/chatroom']" [routerLinkActive]="['active']">
+		<a matLine>Home 1</a>
+	</mat-list-item>
+</mat-nav-list>

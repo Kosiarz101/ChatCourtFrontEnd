@@ -1,0 +1,12 @@
+<div id="login-container">
+  <form id="login-main-form" [formGroup]="loginFormGroup" (ngSubmit)="submit()">
+    <mat-form-field id="login-main-form-field" appearance="outline" hideRequiredMarker="true">
+      <mat-label>Username</mat-label>
+      <input matInput placeholder="Username" formControlName="username">
+      <mat-icon matSuffix>account_circle</mat-icon>
+      <mat-hint>Users will be able to recognise you</mat-hint>
+      <mat-error *ngIf="isUsernameValid()">{{ getUsernameErrorMessage() }}</mat-error>    
+    </mat-form-field>
+    <button id="login-submit-button" type="submit" mat-stroked-button color="primary" [disabled]="!loginFormGroup.valid">Submit</button>
+  </form>  
+</div>

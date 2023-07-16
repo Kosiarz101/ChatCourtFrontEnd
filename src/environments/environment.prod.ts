@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  chatServerUrl: 'http://localhost:8191'
 };
