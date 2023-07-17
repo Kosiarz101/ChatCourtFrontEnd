@@ -1,4 +1,5 @@
 import { BaseModel } from "./base-model"
+import { Chatroom } from "./chatroom"
 
 export interface AppUser extends BaseModel{
 
@@ -6,5 +7,5 @@ export interface AppUser extends BaseModel{
     password: string,
     username: string,
     messages: Array<Object> 
-    chatrooms: Array<Object>
+    chatrooms: Array<Chatroom>
 }

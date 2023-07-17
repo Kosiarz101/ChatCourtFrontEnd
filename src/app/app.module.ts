@@ -11,12 +11,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppMatModule } from './modules/app-mat/app-mat.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
+import { ChatroomListComponent } from './components/elements/chatroom-list/chatroom-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    ChatroomComponent
+    ChatroomComponent,
+    ChatroomListComponent
   ],
   imports: [
     BrowserModule,

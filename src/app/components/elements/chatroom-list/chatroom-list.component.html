@@ -1,0 +1,9 @@
+<div class="list-group" id="list-tab" role="tablist">
+    <button *ngFor="let task of tasks" id="{{task}}" class="list-group-item list-group-item-action" [class.active]="activeChatRoom === task" (click)="changeChatroom(task)">{{ task }}               
+    </button>               
+</div>
+<mat-nav-list>
+	<mat-list-item [routerLink]="['/chatroom']" [routerLinkActive]="['active']">
+		<a matLine>Home 1</a>
+	</mat-list-item>
+</mat-nav-list>

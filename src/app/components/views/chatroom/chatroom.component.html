@@ -2,10 +2,19 @@
     <div id="chatroom-left-panel" class="col-3">
         <div class="row">
             <div class="col-12">
-                <div class="list-group" id="list-tab" role="tablist">
-                    <button *ngFor="let task of tasks" id="{{task}}" class="list-group-item list-group-item-action" [class.active]="activeChatRoom === task" (click)="changeChatroom(task)">{{ task }}               
-                    </button>               
+                <mat-button-toggle-group id="chatroom-upper-button-toggle" #group="matButtonToggleGroup" value="chatroomList">
+                    <mat-button-toggle #cbtb1 id="chatroom-button-toggle-button" value="chatroomList" aria-label="Text align left" (click)="upperButtonToggleHandler(cbtb1.value)">
+                      <mat-icon>groups</mat-icon>
+                    </mat-button-toggle>
+                    <mat-button-toggle #cbtb2 id="chatroom-button-toggle-button" value="usersList" aria-label="Text align right" (click)="upperButtonToggleHandler(cbtb2.value)">
+                      <mat-icon>person</mat-icon>
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <div [ngSwitch]="selectedUpperButtonToggle">
+                    <app-chatroom-list *ngSwitchCase="'chatroomList'"></app-chatroom-list>
+                    <div *ngSwitchCase="'usersList'"></div>
                 </div>
+                <div>{{ selectedUpperButtonToggle }}</div>
             </div>
         </div>
     </div>
@@ -38,9 +47,3 @@
         </div>
     </div>
 </div>
-
-<mat-nav-list>
-	<mat-list-item [routerLink]="['/chatroom']" [routerLinkActive]="['active']">
-		<a matLine>Home 1</a>
-	</mat-list-item>
-</mat-nav-list>

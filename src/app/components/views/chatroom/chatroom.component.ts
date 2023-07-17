@@ -7,23 +7,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChatroomComponent implements OnInit {
 
-  public tasks: String[]
-  public activeChatRoom: String
+  public selectedUpperButtonToggle: string;
 
   constructor() { 
-    this.tasks = [
-      "chatroom1",
-      "chatroom2",
-      "chatroom3"
-    ]
-    this.activeChatRoom = ""
+    this.selectedUpperButtonToggle = "chatroomList"
   }
 
   ngOnInit(): void {
-
   }
 
-  public changeChatroom(task: String) {
-    this.activeChatRoom = task
+  public upperButtonToggleHandler(value: string) {
+    console.log(value)
+    this.selectedUpperButtonToggle = value;
   }
 }

@@ -18,10 +18,19 @@
     border: 5px solid blue;
 }
 
+#chatroom-upper-button-toggle {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#chatroom-button-toggle-button {
+    width: 100%;
+}
+
 .is-active {
     background-color: red;
 }
 
 .mat-list-item.active{
     color: red;
-  }
+}
