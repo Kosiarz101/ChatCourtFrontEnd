@@ -1,0 +1,36 @@
+#chatroom-main-form {
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+}
+
+#chatroom-container {
+    width: 100%;
+}
+
+#chatroom-left-panel {
+    padding: 10px 10px;
+    border: 5px solid red;
+}
+
+#chatroom-right-panel {
+    padding: 10px 10px;
+    border: 5px solid blue;
+}
+
+#chatroom-upper-button-toggle {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#chatroom-button-toggle-button {
+    width: 100%;
+}
+
+.is-active {
+    background-color: red;
+}
+
+.mat-list-item.active{
+    color: red;
+}

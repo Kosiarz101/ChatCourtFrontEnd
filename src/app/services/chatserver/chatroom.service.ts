@@ -15,6 +15,6 @@ export class ChatroomService {
 
   public getAll() : Observable<Slice> {
     let url = environment.chatServerUrl;
-    return this.httpClient.get<Slice>(url + this.endpoint);
+    return this.httpClient.get<Slice>(url + this.endpoint, {  withCredentials: true });
   }
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Chatroom } from 'src/app/interfaces/entities/chatroom';
 
 @Component({
   selector: 'app-chatroom',
@@ -8,6 +9,7 @@ import { Component, OnInit } from '@angular/core';
 export class ChatroomComponent implements OnInit {
 
   public selectedUpperButtonToggle: string;
+  public selectedChatroom: Chatroom = {} as Chatroom
 
   constructor() { 
     this.selectedUpperButtonToggle = "chatroomList"
@@ -17,7 +19,14 @@ export class ChatroomComponent implements OnInit {
   }
 
   public upperButtonToggleHandler(value: string) {
-    console.log(value)
     this.selectedUpperButtonToggle = value;
+  }
+
+  public updateChatroom(chatroom: any) {
+    this.selectedChatroom = chatroom;
+  }
+
+  public getSelectedChatroom() {
+    return this.selectedChatroom;
   }
 }

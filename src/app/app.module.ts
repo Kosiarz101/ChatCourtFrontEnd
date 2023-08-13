@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,15 +11,20 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppMatModule } from './modules/app-mat/app-mat.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ChatroomListComponent } from './components/elements/chatroom-list/chatroom-list.component';
+import { ChatPanelComponent } from './components/elements/chat-panel/chat-panel.component';
+import { UserListComponent } from './components/elements/user-list/user-list.component';
+import { JWTInterceptor } from './interceptors/jwt.interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     ChatroomComponent,
-    ChatroomListComponent
+    ChatroomListComponent,
+    ChatPanelComponent,
+    UserListComponent
   ],
   imports: [
     BrowserModule,
@@ -27,9 +33,16 @@ import { ChatroomListComponent } from './components/elements/chatroom-list/chatr
     ReactiveFormsModule,
     AppMatModule,
     NgbModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JWTInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
