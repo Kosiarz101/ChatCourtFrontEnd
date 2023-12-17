@@ -1,9 +1,12 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { Chatroom } from 'src/app/interfaces/entities/chatroom';
-import { Message } from 'src/app/interfaces/entities/message';
+import { Message as StompMessage } from '@stomp/stompjs';
+import { Message } from 'src/app/interfaces/entities/message'
 import { AppUserService } from 'src/app/services/chatserver/app-user.service';
 import { MessageService } from 'src/app/services/chatserver/message.service';
+import { StompMessageService } from 'src/app/services/chatserver/stomp-message.service';
+import { ResponseEntity } from 'src/app/interfaces/chatserver/response-entity';
 
 @Component({
   selector: 'app-chat-panel',
@@ -16,7 +19,7 @@ export class ChatPanelComponent implements OnInit {
   public messageContent: string = "";
   public chatroomTitle = "Choose chatroom";
 
-  constructor(private messageService: MessageService, private appUserService: AppUserService) { }
+  constructor(private messageService: MessageService, private appUserService: AppUserService, private stompMessageService: StompMessageService) { }
 
   ngOnInit(): void {
   }
@@ -34,11 +37,20 @@ export class ChatPanelComponent implements OnInit {
     let message: Message = {
       content: content,
       authorId: this.appUserService.getCurrentUser().id,
-      chatroomId: this.selectedChatroom.id
+      chatroomId: this.selectedChatroom.id,
+      id: '',
+      creationDate: new Date()
     }
-    this.messageService.sendMessage(message).subscribe(res => {
-      console.log(res);
-    })
+    // this.messageService.sendMessage(message).subscribe(res => {
+    //   console.log(res);
+    // })
+    // this.stompMessageService.watch(`/topic/public/${message.chatroomId}`).subscribe((response: StompMessage) => {
+    //   let responseEntity: ResponseEntity = JSON.parse(response.body)
+    //   console.log('new re: ', responseEntity)
+    //   console.log('new Message: ', responseEntity.body)
+    //   this.selectedChatroom.messages.push(responseEntity.body as Message)
+    // })
+    this.stompMessageService.publish({destination: `/app/message/add`, body: JSON.stringify(message)})
   }
 
   public isMessageBoxEmpty(value: string, button: MatButton) {

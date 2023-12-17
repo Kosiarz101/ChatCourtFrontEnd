@@ -20,15 +20,16 @@ export class JWTInterceptor implements HttpInterceptor {
       withCredentials: true
     });
     
-    return next.handle(request).pipe(
-      catchError(error => {
-      if (error instanceof HttpErrorResponse) {
-        if (error.status === 401) {
-            this.router.navigate(['/login'])
-        }
-      }
-      console.log('user not authenticated')
-      return throwError(() => new Error('user is not authenticated'))
-    }));
+    return next.handle(request);
+    // return next.handle(request).pipe(
+    //   catchError(error => {
+    //   if (error instanceof HttpErrorResponse) {
+    //     if (error.status === 401) {
+    //         this.router.navigate(['/login'])
+    //     }
+    //   }
+    //   console.log('user not authenticated')
+    //   return throwError(() => new Error('user is not authenticated'))
+    // }));
   }
 }

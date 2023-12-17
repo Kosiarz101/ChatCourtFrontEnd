@@ -49,6 +49,7 @@ export class LoginComponent implements OnInit {
   }
 
   private handleRegister() {
+    console.log('register ')
     let user: AppUser = this.createUser();
     this.appUserService.existsByEmail(user.email).subscribe(result =>
       {
@@ -92,6 +93,7 @@ export class LoginComponent implements OnInit {
     console.log(user);
     this.appUserService.add(user).subscribe(data => {
       if (data.status != 201) {
+    console.log('err  ')
         this.loginFormGroup.controls['email'].setErrors({'incorrect': true})
       } else {
         this.router.navigate(['/chatroom']);

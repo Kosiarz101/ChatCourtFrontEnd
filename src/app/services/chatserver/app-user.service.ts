@@ -20,6 +20,7 @@ export class AppUserService {
 
   public add(user: AppUser): Observable<HttpResponse<AppUser>> {
     let url = environment.chatServerUrl + this.userEndpoint;
+    console.log('adding user: ', user, ' to url: ', url)
     return this.httpClient.post<AppUser>(url, user,  {
       observe: 'response'
     });
@@ -28,12 +29,13 @@ export class AppUserService {
   public login(email: string, password: string): Observable<HttpResponse<AppUser>> {
     let loginRequest: LoginRequest = {"email": email, "password": password}
     let url = environment.chatServerUrl + this.authEndpoint + "/login";
-    console.log(loginRequest)
+    console.log('lgo: ', loginRequest, ' to url ', url)
     let obs: Observable<HttpResponse<AppUser>> = this.httpClient.post<AppUser>(url, loginRequest, {
       observe: 'response',
       withCredentials: true 
     });
     obs.subscribe(response => {
+      console.log(response)
       if (response.status == 200 && response.body != null) {
         this.saveUserInStorage(response.body)
       }
@@ -57,7 +59,7 @@ export class AppUserService {
     let url = environment.chatServerUrl;
     let params = new HttpParams().set('email', email);
     console.log(params)
-    return this.httpClient.get<boolean>(url + this.userEndpoint + '/exists', {params});
+    return this.httpClient.get<boolean>(url + this.userEndpoint + '/exists-by-email', {params});
   }
 
   public isUserIwaniuk(): ValidatorFn {

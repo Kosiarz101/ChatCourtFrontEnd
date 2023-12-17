@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  chatServerUrl: 'http://localhost:8191'
+  chatServerUrl: 'https://localhost:8191',
+  webSocketUrl: 'wss://localhost:8191/ws'
 };
 
 /*
