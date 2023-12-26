@@ -72,7 +72,12 @@
               "browserTarget": "AngularChatClient:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "ssl": true,
+            "sslKey": "src/resources/keystore/chatcourt.key",
+            "sslCert": "src/resources/keystore/chatcourt.crt"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

@@ -7,6 +7,8 @@ import { AppUserService } from 'src/app/services/chatserver/app-user.service';
 import { MessageService } from 'src/app/services/chatserver/message.service';
 import { StompMessageService } from 'src/app/services/chatserver/stomp-message.service';
 import { ResponseEntity } from 'src/app/interfaces/chatserver/response-entity';
+import { SessionService } from 'src/app/services/frontend/session.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chat-panel',
@@ -18,8 +20,16 @@ export class ChatPanelComponent implements OnInit {
   @Input() public selectedChatroom = {} as Chatroom;
   public messageContent: string = "";
   public chatroomTitle = "Choose chatroom";
+  public currentUserId: string = '';
 
-  constructor(private messageService: MessageService, private appUserService: AppUserService, private stompMessageService: StompMessageService) { }
+  constructor(private messageService: MessageService, private sessionService: SessionService, private stompMessageService: StompMessageService) { 
+    if (this.existsCurrentUserId())
+      this.currentUserId = sessionService.getId() as string;
+    else 
+      (sessionService.getId() as Observable<string>).subscribe(id =>
+        this.currentUserId = id
+      )
+  }
 
   ngOnInit(): void {
   }
@@ -34,23 +44,13 @@ export class ChatPanelComponent implements OnInit {
   }
 
   public sendMessage(content: string) {
-    let message: Message = {
-      content: content,
-      authorId: this.appUserService.getCurrentUser().id,
-      chatroomId: this.selectedChatroom.id,
-      id: '',
-      creationDate: new Date()
-    }
-    // this.messageService.sendMessage(message).subscribe(res => {
-    //   console.log(res);
-    // })
-    // this.stompMessageService.watch(`/topic/public/${message.chatroomId}`).subscribe((response: StompMessage) => {
-    //   let responseEntity: ResponseEntity = JSON.parse(response.body)
-    //   console.log('new re: ', responseEntity)
-    //   console.log('new Message: ', responseEntity.body)
-    //   this.selectedChatroom.messages.push(responseEntity.body as Message)
-    // })
-    this.stompMessageService.publish({destination: `/app/message/add`, body: JSON.stringify(message)})
+    if (this.existsCurrentUserId())
+      this.executeSendMessage(content, this.sessionService.getId() as string)
+    else {
+      (this.sessionService.getId() as Observable<string>).subscribe(id => 
+        this.executeSendMessage(content, id)
+      )
+    }   
   }
 
   public isMessageBoxEmpty(value: string, button: MatButton) {
@@ -61,6 +61,21 @@ export class ChatPanelComponent implements OnInit {
       button.disabled = true
       console.log('should be false: ', button.disabled)
     }
+  }
+
+  private executeSendMessage(content: string, authorId: string) {
+    let message: Message = {
+      content: content,
+      authorId: authorId,
+      chatroomId: this.selectedChatroom.id,
+      id: '',
+      creationDate: new Date()
+    }
+    this.stompMessageService.publish({destination: `/app/message/add`, body: JSON.stringify(message)})
+  }
+
+  private existsCurrentUserId(): boolean {
+    return this.sessionService.exists(this.sessionService.idKey)
   }
 
   // @Input() updateSelectedChatroom(value: any) {

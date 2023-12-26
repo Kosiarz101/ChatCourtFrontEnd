@@ -23,7 +23,6 @@ export class ChatroomListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('HELLONG')
     this.chatroomService.getAll().subscribe(x => 
       {
         this.chatrooms = x.content as Array<Chatroom>;

@@ -19,7 +19,6 @@ export class JWTInterceptor implements HttpInterceptor {
     request = request.clone({
       withCredentials: true
     });
-    
     return next.handle(request);
     // return next.handle(request).pipe(
     //   catchError(error => {

@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn,
 import { Router } from '@angular/router';
 import { AppUser } from 'src/app/interfaces/entities/app-user';
 import { AppUserService } from 'src/app/services/chatserver/app-user.service';
+import { SessionService } from 'src/app/services/frontend/session.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ export class LoginComponent implements OnInit {
   public hidePassword: boolean = true;
   public isLogin: boolean = true;
 
-  constructor(private formBuilder: FormBuilder, private router: Router, private appUserService: AppUserService) { 
+  constructor(private formBuilder: FormBuilder, private router: Router, private appUserService: AppUserService, private sessionService: SessionService) { 
     this.loginFormGroup = this.formBuilder.group({
       email: ['', [Validators.required, Validators.maxLength(24), Validators.minLength(4), Validators.email, appUserService.isUserIwaniuk()]],
       username: ['', [Validators.maxLength(24), Validators.minLength(4), appUserService.isUserIwaniuk()]],
@@ -49,7 +50,6 @@ export class LoginComponent implements OnInit {
   }
 
   private handleRegister() {
-    console.log('register ')
     let user: AppUser = this.createUser();
     this.appUserService.existsByEmail(user.email).subscribe(result =>
       {
@@ -64,11 +64,12 @@ export class LoginComponent implements OnInit {
   private handleLogin() {
     let email: string = this.loginFormGroup.controls['email'].value;
     let password: string = this.loginFormGroup.controls['password'].value;
-    this.appUserService.login(email, password).subscribe(result => {
+    this.sessionService.signIn(email, password).subscribe(result => {
       console.log('login result: ', result);
-      if(result.status == 200)
+      if(result.status == 200 && result.body != null) {
+        this.sessionService.setSessionUser(result.body)
         this.router.navigate(['/chatroom']);
-      else
+      } else
         this.loginFormGroup.controls['email'].setErrors({'badCredentials': true});
     });
   }
@@ -93,9 +94,12 @@ export class LoginComponent implements OnInit {
     console.log(user);
     this.appUserService.add(user).subscribe(data => {
       if (data.status != 201) {
-    console.log('err  ')
         this.loginFormGroup.controls['email'].setErrors({'incorrect': true})
       } else {
+        this.sessionService.signIn(user.email, user.password).subscribe(result => {
+          if(result.status == 200 && result.body != null)
+            this.sessionService.setSessionUser(result.body)
+        })
         this.router.navigate(['/chatroom']);
       }
     });
