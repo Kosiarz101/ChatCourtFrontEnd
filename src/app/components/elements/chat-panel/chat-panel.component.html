@@ -3,16 +3,18 @@
         <h3>{{ chatroomTitle }}</h3>
     </div>       
 </div>
-<div class="row mb-2 justify-content-start" *ngFor="let message of selectedChatroom.messages">
-    <div class="col-9">
-        <mat-card>
-            <mat-card-content>{{message.content}}</mat-card-content>
-            <mat-card-actions align="end">
-                <button mat-button>LIKE</button>
-                <button mat-button>SHARE</button>
-            </mat-card-actions>
-        </mat-card>
-    </div>       
+<div *ngFor="let message of selectedChatroom.messages">
+    <div [ngClass]="(message.authorId == this.currentUserId ? 'row mb-2 justify-content-end' : 'row mb-2 justify-content-start')">
+        <div class="col-9">
+            <mat-card>
+                <mat-card-content>{{message.content}}</mat-card-content>
+                <mat-card-actions align="end">
+                    <button mat-button>LIKE</button>
+                    <button mat-button>SHARE</button>
+                </mat-card-actions>
+            </mat-card>
+        </div>       
+    </div>
 </div>
 <div class="row">
     <div class="col-10">
