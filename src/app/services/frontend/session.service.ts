@@ -82,12 +82,4 @@ export class SessionService {
       })
     )
   }
-
-  private async updateCurrentUser(response: HttpResponse<AppUser>, errorMessage: string) {
-    console.log('updating user in session service')
-    if (response.status == 200 && response.body != null)
-      this.setSessionUser(response.body)
-    else
-      throw new SessionUserNotFoundError(errorMessage) 
-  }
 }

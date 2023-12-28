@@ -27,6 +27,11 @@
     width: 100%;
 }
 
+#chatroom-category-name {
+    color: gray;
+    font-style: italic;
+}
+
 .is-active {
     background-color: red;
 }

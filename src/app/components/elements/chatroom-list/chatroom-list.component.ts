@@ -5,6 +5,8 @@ import { ChatroomService } from 'src/app/services/chatserver/chatroom.service';
 import { StompMessageService } from 'src/app/services/chatserver/stomp-message.service';
 import { Message as StompMessage } from '@stomp/stompjs';
 import { Message } from 'src/app/interfaces/entities/message';
+import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-chatroom-list',
@@ -13,23 +15,29 @@ import { Message } from 'src/app/interfaces/entities/message';
 })
 export class ChatroomListComponent implements OnInit {
 
-  public chatrooms: Array<Chatroom>
   public chosenChatroom: Chatroom = {} as Chatroom;
+  public chatrooms: Array<Chatroom> = [];
+  public chatrooms$ = new BehaviorSubject<Array<Chatroom>>(this.chatrooms);;
   @Output() public selectedChatroomEmitter = new EventEmitter<Chatroom>();
   selectedChatroom: any;
 
-  constructor(private chatroomService: ChatroomService, private stompMessageService: StompMessageService) { 
-    this.chatrooms = []
+  constructor(private chatroomService: ChatroomService, private stompMessageService: StompMessageService, public chatroomManager: ChatroomManagerService) { 
   }
 
   ngOnInit(): void {
+    console.log('init of chatroom list')
     this.chatroomService.getAll().subscribe(x => 
       {
-        this.chatrooms = x.content as Array<Chatroom>;
+        this.chatrooms = x.content as Array<Chatroom>
+        this.chatrooms$.next(this.chatrooms)
+        this.chatroomManager.addAll(this.chatrooms)
         this.configureStompWatch(this.chatrooms)
       }
     )
-    
+    this.chatroomManager.getActiveChatroomId().subscribe(chatroomId => {
+      console.log('active chatroom: ', chatroomId)
+      this.chosenChatroom = this.chatroomManager.get(chatroomId)
+    })
   }
 
   public configureStompWatch(chatrooms: Array<Chatroom>) {
@@ -37,15 +45,8 @@ export class ChatroomListComponent implements OnInit {
       this.stompMessageService.watch(`/topic/public/${chatroom.id}`).subscribe((response: StompMessage) => {
         let responseEntity: ResponseEntity = JSON.parse(response.body)
         console.log('new Message: ', responseEntity.body)
-        chatroom.messages.push(responseEntity.body as Message)
+        this.chatroomManager.addMessage(chatroom.id, responseEntity.body as Message)
       })
     }) 
   }
-
-  public changeChatroom(chatroomId: string) {
-    this.chosenChatroom = this.chatrooms.find(x => x.id == chatroomId) as Chatroom;
-    this.selectedChatroomEmitter.emit(this.chosenChatroom);
-    console.log('chatlist: ',this.chosenChatroom);
-  }
-
 }
