@@ -9,6 +9,8 @@ import { StompMessageService } from 'src/app/services/chatserver/stomp-message.s
 import { ResponseEntity } from 'src/app/interfaces/chatserver/response-entity';
 import { SessionService } from 'src/app/services/frontend/session.service';
 import { Observable } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
 
 @Component({
   selector: 'app-chat-panel',
@@ -19,10 +21,10 @@ export class ChatPanelComponent implements OnInit {
 
   @Input() public selectedChatroom = {} as Chatroom;
   public messageContent: string = "";
-  public chatroomTitle = "Choose chatroom";
   public currentUserId: string = '';
 
-  constructor(private messageService: MessageService, private sessionService: SessionService, private stompMessageService: StompMessageService) { 
+  constructor(private messageService: MessageService, private sessionService: SessionService, private stompMessageService: StompMessageService,
+    private activeRoue: ActivatedRoute, private chatroomManager: ChatroomManagerService) { 
     if (this.existsCurrentUserId())
       this.currentUserId = sessionService.getId() as string;
     else 
@@ -32,15 +34,10 @@ export class ChatPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if(changes['selectedChatroom']) {
-      this.updateSelectedChatroom()
-    } 
-  }
-  @Input() updateSelectedChatroom() {
-    this.chatroomTitle = this.selectedChatroom.name;
+    // this.activeRoue.params.subscribe(params => {
+    //   this.selectedChatroom = this.chatroomManager.setActiveChatroom(params['id'])
+    //   console.log('selectedRoom = ', this.selectedChatroom)
+    // })
   }
 
   public sendMessage(content: string) {

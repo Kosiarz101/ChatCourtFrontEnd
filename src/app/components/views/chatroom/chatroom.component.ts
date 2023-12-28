@@ -12,6 +12,7 @@ export class ChatroomComponent implements OnInit {
   public selectedChatroom: Chatroom = {} as Chatroom
 
   constructor() { 
+    console.log('init chatroom')
     this.selectedUpperButtonToggle = "chatroomList"
   }
 

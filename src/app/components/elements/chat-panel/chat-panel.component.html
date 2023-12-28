@@ -1,6 +1,7 @@
 <div class="row mb-2 justify-content-start">
     <div class="col-12">
-        <h3>{{ chatroomTitle }}</h3>
+        <h3>{{ selectedChatroom.name }} </h3> 
+        <h4 id="chatroom-category-name"> {{selectedChatroom.category.name}} </h4>
     </div>       
 </div>
 <div *ngFor="let message of selectedChatroom.messages">

@@ -1,6 +1,7 @@
 <div class="list-group" id="list-tab" role="tablist">
-    <button *ngFor="let chatroom of chatrooms" id="{{chatroom.id}}" class="list-group-item list-group-item-action" 
-			[class.active]="chosenChatroom.id === chatroom.id" (click)="changeChatroom(chatroom.id)">{{ chatroom.name }}               
+    <button *ngFor="let chatroom of chatrooms$ | async" id="{{chatroom.id}}" class="list-group-item list-group-item-action" 
+			[class.active]="chosenChatroom.id === chatroom.id" [routerLink]="['/chatroom', chatroom.id]">
+			<a>{{ chatroom.name }}</a>             
     </button>               
 </div>
 <mat-nav-list>
@@ -8,3 +9,9 @@
 		<a matLine>Home 1</a>
 	</mat-list-item>
 </mat-nav-list>
+<div class="d-flex justify-content-center">
+	<button mat-raised-button color="primary" class="d-flex justify-content-center" style="width:50%;" routerLink='/chatroom/search'>
+		<a >Add New</a>
+	</button>
+</div>
+
