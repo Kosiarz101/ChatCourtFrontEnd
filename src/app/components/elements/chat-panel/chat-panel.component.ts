@@ -1,14 +1,11 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { Chatroom } from 'src/app/interfaces/entities/chatroom';
-import { Message as StompMessage } from '@stomp/stompjs';
 import { Message } from 'src/app/interfaces/entities/message'
-import { AppUserService } from 'src/app/services/chatserver/app-user.service';
 import { MessageService } from 'src/app/services/chatserver/message.service';
 import { StompMessageService } from 'src/app/services/chatserver/stomp-message.service';
-import { ResponseEntity } from 'src/app/interfaces/chatserver/response-entity';
 import { SessionService } from 'src/app/services/frontend/session.service';
-import { Observable } from 'rxjs';
+import { Observable, ReplaySubject, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
 
@@ -17,11 +14,13 @@ import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manag
   templateUrl: './chat-panel.component.html',
   styleUrls: ['./chat-panel.component.css']
 })
-export class ChatPanelComponent implements OnInit {
+export class ChatPanelComponent implements OnInit, OnDestroy {
 
-  @Input() public selectedChatroom = {} as Chatroom;
+  public selectedChatroom = {} as Chatroom;
+  public selectedChatroom$ = new ReplaySubject<Chatroom>();
   public messageContent: string = "";
   public currentUserId: string = '';
+  private subscriptions: Array<Subscription> = new Array<Subscription>()
 
   constructor(private messageService: MessageService, private sessionService: SessionService, private stompMessageService: StompMessageService,
     private activeRoue: ActivatedRoute, private chatroomManager: ChatroomManagerService) { 
@@ -34,10 +33,12 @@ export class ChatPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.activeRoue.params.subscribe(params => {
-    //   this.selectedChatroom = this.chatroomManager.setActiveChatroom(params['id'])
-    //   console.log('selectedRoom = ', this.selectedChatroom)
-    // })
+    this.subscriptions.push(this.chatroomManager.getAll().subscribe(() => {
+      this.subscriptions.push(this.activeRoue.params.subscribe(params => {
+        this.chatroomManager.setActiveChatroom(params['id'])
+      }))
+    }))
+    this.subscriptions.push(this.subscribeToActiveChatroomId())
   }
 
   public sendMessage(content: string) {
@@ -58,6 +59,14 @@ export class ChatPanelComponent implements OnInit {
       button.disabled = true
       console.log('should be false: ', button.disabled)
     }
+  }
+
+  private subscribeToActiveChatroomId(): Subscription {
+    return this.chatroomManager.getActiveChatroomId().subscribe(id => {
+      this.selectedChatroom = this.chatroomManager.get(id!)
+      this.selectedChatroom$.next(this.selectedChatroom)
+      console.log('im in active chatroomid, selectedRoom = ', this.selectedChatroom)
+    });
   }
 
   private executeSendMessage(content: string, authorId: string) {
@@ -81,4 +90,7 @@ export class ChatPanelComponent implements OnInit {
   //   this.chatroomTitle = this.selectedChatroom.name;
   // }
 
+  ngOnDestroy(): void {
+    this.subscriptions.map(sub => sub.unsubscribe())
+  }
 }
