@@ -1,17 +1,18 @@
-<div class="list-group" id="list-tab" role="tablist">
-    <button *ngFor="let chatroom of chatrooms$ | async" id="{{chatroom.id}}" class="list-group-item list-group-item-action" 
-			[class.active]="chosenChatroom.id === chatroom.id" [routerLink]="['/chatroom', chatroom.id]">
-			<a>{{ chatroom.name }}</a>             
-    </button>               
+<div>
+	<div class="list-group" id="list-tab" role="tablist">
+		<button *ngFor="let chatroom of chatrooms | keyvalue" id="{{chatroom.value.id}}" class="list-group-item list-group-item-action" 
+				[class.active]="(chosenChatroom$ | async) != null && (chosenChatroom$ | async)!.id === chatroom.value.id" [routerLink]="['/chatroom', chatroom.value.id]">
+				<a>{{ chatroom.value.name }}</a>             
+		</button>               
+	</div>
+	<mat-nav-list>
+		<mat-list-item [routerLink]="['/chatroom']" [routerLinkActive]="['active']">
+			<a matLine>Home 1</a>
+		</mat-list-item>
+	</mat-nav-list>
+	<div class="d-flex justify-content-center">
+		<button mat-raised-button color="primary" class="d-flex justify-content-center" style="width:50%;" routerLink='/chatroom/search'>
+			<a >Add New</a>
+		</button>
+	</div>
 </div>
-<mat-nav-list>
-	<mat-list-item [routerLink]="['/chatroom']" [routerLinkActive]="['active']">
-		<a matLine>Home 1</a>
-	</mat-list-item>
-</mat-nav-list>
-<div class="d-flex justify-content-center">
-	<button mat-raised-button color="primary" class="d-flex justify-content-center" style="width:50%;" routerLink='/chatroom/search'>
-		<a >Add New</a>
-	</button>
-</div>
-
