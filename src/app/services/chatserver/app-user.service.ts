@@ -58,4 +58,16 @@ export class AppUserService {
         return value.toLowerCase().includes("iwaniuk") ? {forbiddenName: {value: control.value}} : null;
     }
   }
+
+  public static init(id: string): AppUser {
+    return {
+      id: id,
+      email: '',
+      password: '',
+      username: '',
+      messages: new Array(),
+      chatrooms: new Array(),
+      creationDate: new Date()
+    }
+  }
 }

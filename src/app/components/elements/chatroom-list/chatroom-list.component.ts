@@ -6,7 +6,8 @@ import { StompMessageService } from 'src/app/services/chatserver/stomp-message.s
 import { Message as StompMessage } from '@stomp/stompjs';
 import { Message } from 'src/app/interfaces/entities/message';
 import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
-import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subscription } from 'rxjs';
+import { SessionService } from 'src/app/services/frontend/session.service';
 
 @Component({
   selector: 'app-chatroom-list',
@@ -21,29 +22,43 @@ export class ChatroomListComponent implements OnInit, OnDestroy {
   public chosenChatroom$: BehaviorSubject<Chatroom | null>
   private subscriptions: Array<Subscription> = new Array<Subscription>()
 
-  constructor(private chatroomService: ChatroomService, private stompMessageService: StompMessageService, public chatroomManager: ChatroomManagerService) { 
+  constructor(private chatroomService: ChatroomService, private stompMessageService: StompMessageService, 
+    private sessionService: SessionService, public chatroomManager: ChatroomManagerService) { 
     this.chatrooms$ = new ReplaySubject<Map<string, Chatroom>>();
     this.chosenChatroom$ = new BehaviorSubject<Chatroom | null>(null);
 }
 
   ngOnInit(): void {
-    console.log('init of chatroom list')
     this.subscriptions.push(this.subscribeToChatroomsFromChatroomManager()) 
     this.subscriptions.push(this.subscribeToActiveChatroom())
-    this.subscriptions.push(this.getAllChatroomsFromDB())
+    this.getAllChatroomsFromDB()
+  }
+
+  // needed to disable auto sorting in keyvalue pipe
+  public returnZero(): number {
+    return 0;
   }
 
   private subscribeToChatroomsFromChatroomManager(): Subscription {
     return this.chatroomManager.getAll().subscribe(x => {
-      console.log('chatroom list - getall()')
       this.chatrooms = x
       this.chatrooms$.next(x)
       this.configureStompWatch(this.chatrooms.values())
     })
   }
 
-  private getAllChatroomsFromDB(): Subscription  {
-    return this.chatroomService.getAll().subscribe(x => 
+  private getAllChatroomsFromDB()  {
+    if (!this.sessionService.exists(this.sessionService.idKey)) {
+      this.subscriptions.push((this.sessionService.getId() as Observable<string>).subscribe(userId =>
+        this.subscriptions.push(this.subscribeToFindByUserId(userId)) 
+      )) 
+    } else {
+      this.subscriptions.push(this.subscribeToFindByUserId(this.sessionService.getId() as string)) 
+    }
+  }
+
+  private subscribeToFindByUserId(userId: string): Subscription {
+    return this.chatroomService.findByUserId(userId, true).subscribe(x => 
       {
         this.chatroomManager.addAll(x.content as Array<Chatroom>)
       }
@@ -61,11 +76,11 @@ export class ChatroomListComponent implements OnInit, OnDestroy {
 
   private configureStompWatch(chatrooms: IterableIterator<Chatroom>) {
     for (let chatroom of chatrooms) {
-      this.stompMessageService.watch(`/topic/public/${chatroom.id}`).subscribe((response: StompMessage) => {
+      this.subscriptions.push(this.stompMessageService.watch(`/topic/public/${chatroom.id}`).subscribe((response: StompMessage) => {
         let responseEntity: ResponseEntity = JSON.parse(response.body)
         console.log('new Message: ', responseEntity.body)
         this.chatroomManager.addMessage(chatroom.id, responseEntity.body as Message)
-      })
+      }))
     }
   }
 

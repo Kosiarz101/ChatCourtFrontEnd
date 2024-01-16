@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input'
 import { MatListModule } from '@angular/material/list'
 import { MatCardModule } from '@angular/material/card'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [],
@@ -19,7 +20,8 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle'
     MatInputModule,
     MatListModule,
     MatCardModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    ScrollingModule
   ],
   exports: [
     MatFormFieldModule,
@@ -28,7 +30,8 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle'
     MatInputModule,
     MatListModule,
     MatCardModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    ScrollingModule
   ]
 })
 export class AppMatModule { }

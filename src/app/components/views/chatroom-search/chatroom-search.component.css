@@ -1,0 +1,8 @@
+::ng-deep .mat-card-header-text {
+    margin: 0px !important;
+  }
+
+  #chatroom-search-scroll-viewport {
+    width:60%;
+    height:50vh;
+  }

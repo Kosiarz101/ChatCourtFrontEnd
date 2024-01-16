@@ -1,1 +1,41 @@
-<p>chatroom-search works!</p>
+<div class="d-flex justify-content-center">
+  <div style="width:95%;" class="row pt-4">
+      <div class="d-flex justify-content-center">
+          <button mat-raised-button color="primary" class="d-flex justify-content-center" style="width:60%;">
+              <a>By Code</a>
+          </button>
+      </div>
+      <div class="d-flex justify-content-center mt-4">
+          <mat-form-field class="example-form-field" style="width:60%;" appearance="outline">
+              <input matInput type="text" [(ngModel)]="chatroomTitle" placeholder="Search..." (keyup.enter)="sendSearchRequest()">
+              <button *ngIf="chatroomTitle" matSuffix mat-icon-button aria-label="Clear" (click)="sendSearchRequest()">
+                  <mat-icon>search</mat-icon>
+                </button>
+            </mat-form-field>
+      </div>
+      <div class="d-flex justify-content-center mt-4">
+          <cdk-virtual-scroll-viewport *ngIf="this.chatrooms.length > 0" id="chatroom-search-scroll-viewport" class="d-flex viewport" 
+            itemSize="150" appendOnly="True">
+            <div *cdkVirtualFor="let chatroom of chatrooms">
+              <mat-card class="example-card">
+                <mat-card-header>
+                  <mat-card-title>{{chatroom.name}}</mat-card-title>
+                  <mat-card-subtitle>{{chatroom.category.name}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                  <p>{{chatroom.description}}</p>
+                </mat-card-content>
+                <mat-card-actions align="end">
+                  <button mat-button disabled="">Users: {{chatroom.userCount}}</button>
+                  <button mat-button color="primary" (click)="joinChatroom(chatroom)">JOIN</button>
+                </mat-card-actions>
+              </mat-card>
+            </div>     
+            <button *ngIf="chatrooms.length > 0 && this.hasNext" mat-button color="primary" (click)="getNextPageOfChatrooms()"
+              class="mt-2 d-flex justify-content-center" style="width:100%">
+              <a>load more</a>
+            </button>        
+          </cdk-virtual-scroll-viewport>
+      </div>     
+  </div>
+</div>

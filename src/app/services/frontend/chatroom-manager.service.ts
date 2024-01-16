@@ -26,7 +26,10 @@ export class ChatroomManagerService {
   }
 
   public addMessage(chatroomId: string, message: Message) {
-    this.chatrooms.get(chatroomId)!.messages.push(message)
+    let chatroom = this.chatrooms.get(chatroomId)!
+    if (chatroom.messages == null)
+      chatroom.messages = new Array();
+    return chatroom.messages.push(message)
   }
 
   public get(id: string): Chatroom {
