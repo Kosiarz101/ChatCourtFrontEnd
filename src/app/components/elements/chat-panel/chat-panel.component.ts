@@ -8,6 +8,9 @@ import { SessionService } from 'src/app/services/frontend/session.service';
 import { Observable, ReplaySubject, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
+import { ResponseEntity } from 'src/app/interfaces/chatserver/response-entity';
+import { SessionService } from 'src/app/services/frontend/session.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chat-panel',
@@ -67,6 +70,21 @@ export class ChatPanelComponent implements OnInit, OnDestroy {
       this.selectedChatroom$.next(this.selectedChatroom)
       console.log('im in active chatroomid, selectedRoom = ', this.selectedChatroom)
     });
+  }
+
+  private executeSendMessage(content: string, authorId: string) {
+    let message: Message = {
+      content: content,
+      authorId: authorId,
+      chatroomId: this.selectedChatroom.id,
+      id: '',
+      creationDate: new Date()
+    }
+    this.stompMessageService.publish({destination: `/app/message/add`, body: JSON.stringify(message)})
+  }
+
+  private existsCurrentUserId(): boolean {
+    return this.sessionService.exists(this.sessionService.idKey)
   }
 
   private executeSendMessage(content: string, authorId: string) {
