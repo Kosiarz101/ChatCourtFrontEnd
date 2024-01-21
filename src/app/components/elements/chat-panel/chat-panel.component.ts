@@ -6,7 +6,7 @@ import { MessageService } from 'src/app/services/chatserver/message.service';
 import { StompMessageService } from 'src/app/services/chatserver/stomp-message.service';
 import { SessionService } from 'src/app/services/frontend/session.service';
 import { Observable, ReplaySubject, Subscription } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
 
 @Component({

@@ -3,7 +3,6 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { ChatroomUserRole } from 'src/app/enums/chatroom-user-role';
 import { Slice } from 'src/app/interfaces/chatserver/slice';
-import { AppUser } from 'src/app/interfaces/entities/app-user';
 import { Category } from 'src/app/interfaces/entities/category';
 import { Chatroom } from 'src/app/interfaces/entities/chatroom';
 import { ChatroomSearch } from 'src/app/interfaces/entities/chatroom-search';
