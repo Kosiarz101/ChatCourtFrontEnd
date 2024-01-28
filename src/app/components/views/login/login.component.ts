@@ -27,22 +27,21 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void { 
   }
 
-  isEmailValid() {
+  isEmailInvalid() {
     return this.loginFormGroup.controls["email"].invalid;
   }
 
-  isUsernameValid() {
+  isUsernameInvalid() {
     return this.loginFormGroup.controls["username"].invalid;
   }
 
-  isPasswordValid() {
+  isPasswordInvalid() {
     return this.loginFormGroup.controls["password"].invalid;
   }
 
   setIsLogin(value: any) { this.isLogin = value; }
 
   public submit() {
-
     if (this.isLogin)
       this.handleLogin();
     else 
@@ -54,7 +53,7 @@ export class LoginComponent implements OnInit {
     this.appUserService.existsByEmail(user.email).subscribe(result =>
       {
         if(result) {
-          this.loginFormGroup.controls['email'].setErrors({'incorrect': true})
+          this.loginFormGroup.controls['email'].setErrors({'alreadyTakenEmail': true})
         } else {
           this.handlePostUser(user);
         }
@@ -64,13 +63,17 @@ export class LoginComponent implements OnInit {
   private handleLogin() {
     let email: string = this.loginFormGroup.controls['email'].value;
     let password: string = this.loginFormGroup.controls['password'].value;
-    this.sessionService.signIn(email, password).subscribe(result => {
-      console.log('login result: ', result);
-      if(result.status == 200 && result.body != null) {
-        this.sessionService.setSessionUser(result.body)
-        this.router.navigate(['/chatroom']);
-      } else
-        this.loginFormGroup.controls['email'].setErrors({'badCredentials': true});
+      this.sessionService.signIn(email, password).subscribe({ 
+        next: (result) => {
+          console.log('login result: ', result);
+          if(result.status == 200 && result.body != null) {
+            this.sessionService.setSessionUser(result.body)
+            this.router.navigate(['/chatroom']);
+          }
+        },
+        error: () => {
+          this.loginFormGroup.controls['password'].setErrors({'badCredentials': true});
+        }
     });
   }
 
@@ -82,8 +85,6 @@ export class LoginComponent implements OnInit {
       username: username,
       email: email,
       password: password,
-      messages: [],
-      chatrooms: [],
       id: '',
       creationDate: new Date()
     }
@@ -94,7 +95,7 @@ export class LoginComponent implements OnInit {
     console.log(user);
     this.appUserService.add(user).subscribe(data => {
       if (data.status != 201) {
-        this.loginFormGroup.controls['email'].setErrors({'incorrect': true})
+        this.loginFormGroup.controls['email'].setErrors({'notAbleToCreateUser': true})
       } else {
         this.sessionService.signIn(user.email, user.password).subscribe(result => {
           if(result.status == 200 && result.body != null)
@@ -134,10 +135,12 @@ export class LoginComponent implements OnInit {
       return name + " must contain minimum one upper letter"
     else if (field.hasError("number"))
       return name + " must contain minimum one number"
+    else if (field.hasError("badCredentials"))
+      return "bad login or password"
+    else if (field.hasError("alreadyTakenEmail"))
+      return name + " has been already taken"
     else if (field.hasError("forbiddenName"))
       return "you are too gay"
-    else if (field.hasError("incorrect"))
-      return name + " has been already taken"
     return "unknown error";
   }
 }

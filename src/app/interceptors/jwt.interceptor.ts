@@ -4,14 +4,16 @@ import {
   HttpHandler,
   HttpEvent,
   HttpInterceptor,
-  HttpResponse,
   HttpErrorResponse
 } from '@angular/common/http';
-import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class JWTInterceptor implements HttpInterceptor {
+
+  private notFilter = ['/auth/login']
 
   constructor(private router: Router) {}
 
@@ -19,16 +21,21 @@ export class JWTInterceptor implements HttpInterceptor {
     request = request.clone({
       withCredentials: true
     });
-    return next.handle(request);
-    // return next.handle(request).pipe(
-    //   catchError(error => {
-    //   if (error instanceof HttpErrorResponse) {
-    //     if (error.status === 401) {
-    //         this.router.navigate(['/login'])
-    //     }
-    //   }
-    //   console.log('user not authenticated')
-    //   return throwError(() => new Error('user is not authenticated'))
-    // }));
+
+    if (this.notFilter.some(x => request.url.includes(environment.chatServerUrl + x))) {
+      return next.handle(request);
+    }
+
+    return next.handle(request).pipe(
+      catchError(error => {
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 401) {
+          console.log('user not authenticated')
+          this.router.navigate(['/login'])
+        }
+        return throwError(() => new Error('jwt interceptor - ' + error.message))
+      }
+      return throwError(() => new Error('jwt interceptor - something went wrong'))
+    }));
   }
 }
