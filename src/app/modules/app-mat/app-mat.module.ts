@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input'
 import { MatListModule } from '@angular/material/list'
 import { MatCardModule } from '@angular/material/card'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
+import { MatBadgeModule } from '@angular/material/badge'
+import { MatMenuModule } from '@angular/material/menu'
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
@@ -21,6 +23,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatListModule,
     MatCardModule,
     MatButtonToggleModule,
+    MatMenuModule,
+    MatBadgeModule,
     ScrollingModule
   ],
   exports: [
@@ -31,6 +35,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatListModule,
     MatCardModule,
     MatButtonToggleModule,
+    MatMenuModule,
+    MatBadgeModule,
     ScrollingModule
   ]
 })

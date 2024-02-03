@@ -1,13 +1,10 @@
 import { Component, OnDestroy, OnInit} from '@angular/core';
-import { ResponseEntity } from 'src/app/interfaces/chatserver/response-entity';
-import { Chatroom } from 'src/app/interfaces/entities/chatroom';
-import { ChatroomService } from 'src/app/services/chatserver/chatroom.service';
-import { StompMessageService } from 'src/app/services/chatserver/stomp-message.service';
-import { Message as StompMessage } from '@stomp/stompjs';
-import { Message } from 'src/app/interfaces/entities/message';
 import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
-import { BehaviorSubject, Observable, ReplaySubject, Subscription } from 'rxjs';
-import { SessionService } from 'src/app/services/frontend/session.service';
+import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
+import { NavigationStart, Router} from '@angular/router';
+import { NotificationService } from 'src/app/services/frontend/notification.service';
+import { ChatroomChatPanel } from 'src/app/interfaces/entities/chatroom-chat-panel';
+import { RxStompConfigurationService } from 'src/app/services/frontend/rx-stomp-configuration.service';
 
 @Component({
   selector: 'app-chatroom-list',
@@ -16,22 +13,37 @@ import { SessionService } from 'src/app/services/frontend/session.service';
 })
 export class ChatroomListComponent implements OnInit, OnDestroy {
 
-  public chatrooms: Map<string, Chatroom> = new Map();
-  public chatrooms$: ReplaySubject<Map<string, Chatroom>>
-  public chosenChatroom: Chatroom | null = null;
-  public chosenChatroom$: BehaviorSubject<Chatroom | null>
+  public chatrooms: Map<string, ChatroomChatPanel> = new Map();
+  public chatrooms$: ReplaySubject<Map<string, ChatroomChatPanel>>
+  public chosenChatroom: ChatroomChatPanel | null = null;
+  public chosenChatroom$: BehaviorSubject<ChatroomChatPanel | null>
+  public selectedChatroomId$: BehaviorSubject<string>
   private subscriptions: Array<Subscription> = new Array<Subscription>()
 
-  constructor(private chatroomService: ChatroomService, private stompMessageService: StompMessageService, 
-    private sessionService: SessionService, public chatroomManager: ChatroomManagerService) { 
-    this.chatrooms$ = new ReplaySubject<Map<string, Chatroom>>();
-    this.chosenChatroom$ = new BehaviorSubject<Chatroom | null>(null);
+  constructor(public notificationService: NotificationService, public chatroomManager: ChatroomManagerService, 
+    private router: Router, private rxStompConfigurer: RxStompConfigurationService) { 
+    this.chatrooms$ = new ReplaySubject<Map<string, ChatroomChatPanel>>();
+    this.chosenChatroom$ = new BehaviorSubject<ChatroomChatPanel | null>(null);
+    this.selectedChatroomId$ = new BehaviorSubject<string>(this.chatroomManager.getChatroomIdFromUrl(this.router.url));
 }
 
   ngOnInit(): void {
-    this.subscriptions.push(this.subscribeToChatroomsFromChatroomManager()) 
-    this.subscriptions.push(this.subscribeToActiveChatroom())
-    this.getAllChatroomsFromDB()
+    this.subscriptions.push(this.getAllChatrooms()) 
+    this.subscriptions.push(this.getActiveChatroom())
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        let id = this.chatroomManager.getChatroomIdFromUrl(event.url)
+        this.selectedChatroomId$.next(id)    
+      }
+    })
+  }
+
+  // check if UI should notifiy user about unread message
+  public isUserNotNotified(chatroom: ChatroomChatPanel): boolean {
+    if (this.chosenChatroom != null && this.chosenChatroom!.id != chatroom.id) {
+      return this.notificationService.exists(chatroom.id)
+    }
+    return false;
   }
 
   // needed to disable auto sorting in keyvalue pipe
@@ -39,49 +51,22 @@ export class ChatroomListComponent implements OnInit, OnDestroy {
     return 0;
   }
 
-  private subscribeToChatroomsFromChatroomManager(): Subscription {
+  private getAllChatrooms(): Subscription {
     return this.chatroomManager.getAll().subscribe(x => {
+      console.log('CHATS chatrooms', x)
       this.chatrooms = x
-      this.chatrooms$.next(x)
-      this.configureStompWatch(this.chatrooms.values())
+      if (!this.rxStompConfigurer.getIsConfigured())
+        this.rxStompConfigurer.configureStompWatch(this.chatrooms.values())
     })
   }
 
-  private getAllChatroomsFromDB()  {
-    if (!this.sessionService.exists(this.sessionService.idKey)) {
-      this.subscriptions.push((this.sessionService.getId() as Observable<string>).subscribe(userId =>
-        this.subscriptions.push(this.subscribeToFindByUserId(userId)) 
-      )) 
-    } else {
-      this.subscriptions.push(this.subscribeToFindByUserId(this.sessionService.getId() as string)) 
-    }
-  }
-
-  private subscribeToFindByUserId(userId: string): Subscription {
-    return this.chatroomService.findByUserId(userId, true).subscribe(x => 
-      {
-        this.chatroomManager.addAll(x.content as Array<Chatroom>)
-      }
-    )
-  }
-
-  private subscribeToActiveChatroom(): Subscription  {
+  private getActiveChatroom(): Subscription  {
     return this.chatroomManager.getActiveChatroomId().subscribe(chatroomId => {
       console.log('active chatroom: ', chatroomId)
       if (chatroomId != null)
         this.chosenChatroom = this.chatrooms.get(chatroomId)!
       this.chosenChatroom$.next(this.chosenChatroom)
     })
-  }
-
-  private configureStompWatch(chatrooms: IterableIterator<Chatroom>) {
-    for (let chatroom of chatrooms) {
-      this.subscriptions.push(this.stompMessageService.watch(`/topic/public/${chatroom.id}`).subscribe((response: StompMessage) => {
-        let responseEntity: ResponseEntity = JSON.parse(response.body)
-        console.log('new Message: ', responseEntity.body)
-        this.chatroomManager.addMessage(chatroom.id, responseEntity.body as Message)
-      }))
-    }
   }
 
   ngOnDestroy(): void {

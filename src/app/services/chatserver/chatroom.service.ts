@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Slice } from 'src/app/interfaces/chatserver/slice';
 import { Chatroom } from 'src/app/interfaces/entities/chatroom';
 import { environment } from 'src/environments/environment';
 import { CategoryService } from './category.service';
+import { ChatroomChatPanel } from 'src/app/interfaces/entities/chatroom-chat-panel';
 
 @Injectable({
   providedIn: 'root'
@@ -18,16 +19,25 @@ export class ChatroomService {
     this.url = environment.chatServerUrl;
   }
 
-  public getById(id: string): Observable<Chatroom> {
-      return this.httpClient.get<Chatroom>(this.url + this.endpoint + "/" + id, {withCredentials: true})
+  public getById(id: string, includeMessages: boolean = false, includeUsers: boolean = false): Observable<ChatroomChatPanel> {
+    let params = new HttpParams()
+    .set('includeMessages', includeMessages)
+    .set('includeUsers', includeUsers)
+    console.log('params ', params)
+
+    return this.httpClient.get<ChatroomChatPanel>(this.url + this.endpoint + "/" + id, {
+      withCredentials: true, 
+      params 
+    })
   }
 
-  public findByUserId(userId: string, includeMessages: boolean = false) : Observable<Slice> {
+  public findByUserId(userId: string, includeMessages: boolean = false, includeUsers: boolean = false) : Observable<Slice> {
     return this.httpClient.get<Slice>(this.url + this.endpoint, 
       {  
         withCredentials: true, 
         params: { 
           includeMessages : includeMessages, 
+          includeUsers : includeUsers, 
           userId: userId
         } 
       }
@@ -61,7 +71,6 @@ export class ChatroomService {
       name: '',
       isPublic: false,
       category: CategoryService.init(categoryId),
-      messages: new Array(),
       creationDate: new Date()
     }
   }

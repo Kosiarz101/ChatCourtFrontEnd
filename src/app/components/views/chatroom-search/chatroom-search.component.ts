@@ -1,6 +1,6 @@
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit} from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ChatroomUserRole } from 'src/app/enums/chatroom-user-role';
 import { Slice } from 'src/app/interfaces/chatserver/slice';
 import { Category } from 'src/app/interfaces/entities/category';
@@ -12,6 +12,7 @@ import { CategoryService } from 'src/app/services/chatserver/category.service';
 import { ChatroomUserService } from 'src/app/services/chatserver/chatroom-user.service';
 import { ChatroomService } from 'src/app/services/chatserver/chatroom.service';
 import { ChatroomManagerService } from 'src/app/services/frontend/chatroom-manager.service';
+import { RxStompConfigurationService } from 'src/app/services/frontend/rx-stomp-configuration.service';
 import { SessionService } from 'src/app/services/frontend/session.service';
 
 @Component({
@@ -21,19 +22,18 @@ import { SessionService } from 'src/app/services/frontend/session.service';
 })
 export class ChatroomSearchComponent implements OnInit, OnDestroy {
 
-  @ViewChild(CdkVirtualScrollViewport) 
-  viewport!: CdkVirtualScrollViewport;
-
   public chatroomTitle: string = ''
   public chosenCategoryId: string = '' //7cd2146c-da14-4053-9144-ffe10388f5d3
+  public currentUserID: string = ''
   public chatrooms: Array<ChatroomSearch>;
   public categories: Array<Category> = [];
   public hasNext: boolean = false;
+  public showNotFoundMessage = false;
   private pageNumber: number = 0;
   private subscriptions: Array<Subscription> = [];
 
   constructor(private categoryService: CategoryService, private chatroomService: ChatroomService, private chatroomUserService: ChatroomUserService,
-    private sessionService: SessionService, private chatroomManager: ChatroomManagerService ) { 
+    private sessionService: SessionService, private chatroomManager: ChatroomManagerService, private rxStompConfigurer: RxStompConfigurationService) { 
     this.chatrooms = new Array()
   }
 
@@ -41,7 +41,6 @@ export class ChatroomSearchComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.subscribeToCategories())
   }
 
-  //todo: message when no chatroom has been found
   public sendSearchRequest() {
     if (!this.chatroomTitle)
       return;
@@ -75,20 +74,22 @@ export class ChatroomSearchComponent implements OnInit, OnDestroy {
   }
 
   public joinChatroom(chatroom: Chatroom) {
-    if (this.sessionService.exists(this.sessionService.idKey)) {
-      this.addUserToChatroom(chatroom.id, chatroom.category.id, this.sessionService.getId() as string)
-    } else {
-      this.subscriptions.push((this.sessionService.getId() as Observable<string>).subscribe(id => {
-        this.addUserToChatroom(chatroom.id, chatroom.category.id, id)
-      })) 
-    }   
+    this.subscriptions.push(this.sessionService.getId().subscribe(id => {
+      this.addUserToChatroom(chatroom.id, chatroom.category.id, id)
+    }))
+  }
+
+  public onChangeSearchInput() {
+    this.showNotFoundMessage = false;
   }
 
   private addUserToChatroom(chatroomId: string, chatroomCategoryId: string, userId: string) {
     let chatroomUser: ChatroomUser = {
+      id: '',
       role: ChatroomUserRole.USER,
       chatroom: ChatroomService.init(chatroomId, chatroomCategoryId),
-      user: AppUserService.init(userId)
+      user: AppUserService.init(userId),
+      creationDate: new Date()
     }
     this.subscriptions.push(this.chatroomUserService.add(chatroomUser).subscribe(response =>  {
       if (response.status == 201) {
@@ -101,12 +102,14 @@ export class ChatroomSearchComponent implements OnInit, OnDestroy {
   }
 
   private addChatroomToLocalStorage(id: string) {
-    this.chatroomService.getById(id).subscribe(response => {
+    this.subscriptions.push(this.chatroomService.getById(id, true, true).subscribe(response => {
       this.chatroomManager.addAll([response])
-    })
+      this.rxStompConfigurer.addToStompWatch(response)
+    }))
   }
 
   private handleSearchResponse(response: Slice) {
+    this.showNotFoundMessage = true;
     this.chatrooms = response.content as Array<ChatroomSearch>
     this.pageNumber++;
     this.hasNext = !response.last

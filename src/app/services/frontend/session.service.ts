@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { SessionUserNotFoundError } from 'src/app/exceptions/session-user-not-found-error';
 import { AppUser } from 'src/app/interfaces/entities/app-user';
 import { AppUserService } from '../chatserver/app-user.service';
-import { Observable, lastValueFrom, map, tap } from 'rxjs';
-import { HttpRequest, HttpResponse } from '@angular/common/http';
+import { Observable, map, of, switchMap, tap } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class SessionService {
   public readonly usernameKey: string = "currentUserUsername"
   public readonly creationDateKey: string = "currentUserCreationDate"
 
-  constructor(private appUserService: AppUserService) { }
+  constructor(private appUserService: AppUserService) {}
 
   public signIn(email: string, password: string): Observable<HttpResponse<AppUser>> {
     return this.appUserService.sendLoginRequest(email, password);
@@ -29,14 +29,21 @@ export class SessionService {
     sessionStorage.setItem(this.creationDateKey, appUser.creationDate.toString())
   }
 
-  public getId(): string | Observable<string> {
+  public getId(): Observable<string> {
     console.log('current id', sessionStorage.getItem(this.idKey)!)
-    let obs = this.createObs(this.idKey, "Id not found in a session storage")?.pipe(
-      map(response => {
-          return sessionStorage.getItem(this.idKey)!
+    return of(sessionStorage.getItem(this.idKey)).pipe(
+      switchMap(id => {
+        if (!id) {
+          return this.createObs(this.idKey, "Id not found in a session storage")?.pipe(
+            map(response => {
+                return sessionStorage.getItem(this.idKey)!
+            })
+          )
+        } else {
+          return of(id)
+        } 
       })
     )
-    return this.exists(this.idKey) ? sessionStorage.getItem(this.idKey)! : obs
   } 
 
   public getEmail(): string | Observable<string> {

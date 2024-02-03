@@ -65,8 +65,6 @@ export class AppUserService {
       email: '',
       password: '',
       username: '',
-      messages: new Array(),
-      chatrooms: new Array(),
       creationDate: new Date()
     }
   }

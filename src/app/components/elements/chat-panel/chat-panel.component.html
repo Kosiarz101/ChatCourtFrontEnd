@@ -5,31 +5,29 @@
             <h4 id="chatroom-category-name"> {{selectedChatroom.category.name}} </h4>
         </div>       
     </div>
-    <div *ngFor="let message of selectedChatroomSubject.messages">
-        <div [ngClass]="(message.authorId == this.currentUserId ? 'row mb-2 justify-content-end' : 'row mb-2 justify-content-start')">
-            <div class="col-9">
-                <mat-card>
-                    <mat-card-content>{{message.content}}</mat-card-content>
-                    <mat-card-actions align="end">
-                        <button mat-button>LIKE</button>
-                        <button mat-button>SHARE</button>
-                    </mat-card-actions>
-                </mat-card>
-            </div>       
-        </div>
+    <button *ngIf="this.hasNext" mat-button color="primary" (click)="getNextPageOfMessages()"
+        class="mt-2 d-flex justify-content-center" style="width:100%">
+        <a>load more</a>
+    </button> 
+    <div *ngFor="let message of selectedChatroomSubject.messages">  
+        <app-message-box [ngClass]="(message.authorId == this.currentUserId ? 'row mb-2 justify-content-end' : 'row mb-2 justify-content-start')" 
+        [message]="message" [author]="getAuthorOfMessage(message.authorId)" [currentUserId]="this.currentUserId" [chosenMessageId]="getChosenMessageId()" (updateMessageEvent)="updateMessage($event, sendButton)"></app-message-box>
     </div>
-    <div class="row">
+    <div class="row mt-1">
         <div class="col-10">
             <form id="chatroom-main-form">
                 <mat-form-field class="example-full-width">
                   <mat-label>Text a message</mat-label>
                   <textarea #messageBox [(ngModel)]='messageContent' (ngModelChange)="isMessageBoxEmpty(messageBox.value, sendButton)"  [ngModelOptions]="{standalone: true}" 
                   cdkTextareaAutosize matInput cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5" wrap="hard"  placeholder="Text a message..."></textarea>
+                  <button mat-icon-button matSuffix (click)="cancelText(sendButton)">
+                    <mat-icon *ngIf="!sendButton.disabled || this.isUpdated" #cancelButton style="font-size: 20px;">cancel</mat-icon>
+                  </button>
                 </mat-form-field>
               </form>
         </div>
         <div class="col-2">
-            <button #sendButton mat-mini-fab matTooltip="Primary" color="primary" aria-label="Example fab with a heart icon" (click)="sendMessage(messageBox.value)" disabled="true">
+            <button #sendButton mat-mini-fab matTooltip="Primary" color="primary" aria-label="Example fab with a heart icon" (click)="sendMessage(messageBox.value, sendButton)" disabled="true">
                 <mat-icon>send</mat-icon>
             </button>
         </div>

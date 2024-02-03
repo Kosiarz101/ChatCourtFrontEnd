@@ -1,13 +1,20 @@
 <div>
-	<div class="list-group" id="list-tab" role="tablist">
-		<button *ngFor="let chatroom of chatrooms | keyvalue : returnZero" id="{{chatroom.value.id}}" class="list-group-item list-group-item-action" 
-				[class.active]="(chosenChatroom$ | async) != null && (chosenChatroom$ | async)!.id === chatroom.value.id" [routerLink]="['/chatroom', chatroom.value.id]">
-				<a>{{ chatroom.value.name }}</a>             
-		</button>               
-	</div>
-	<mat-nav-list>
+	<mat-button-toggle-group [vertical]="true" style="width: 100%;"  [ngModel]="(selectedChatroomId$ | async)">
+		<mat-button-toggle class="chatroom-list-button-toggle" id="{{chatroom.value.id}}" *ngFor="let chatroom of chatrooms | keyvalue : returnZero" 
+		[class.active]="(chosenChatroom$ | async) != null && (chosenChatroom$ | async)!.id === chatroom.value.id" 
+		[routerLink]="['/chatroom', chatroom.value.id]" value="{{chatroom.value.id}}">
+				<div class="d-flex flex-row justify-content-between align-items-center">
+					<div class="d-flex">{{ chatroom.value.name }}</div>     
+					<div *ngIf="isUserNotNotified(chatroom.value)" 
+					class="d-flex flex-row chatroom-list-badge align-items-center">
+						<div class="d-flex">{{this.notificationService.isUnderLimit(chatroom.value.id) ? this.notificationService.get(chatroom.value.id) : '9+'}}</div>
+					</div> 
+				</div>  
+		</mat-button-toggle>               
+	</mat-button-toggle-group>
+	<mat-nav-list class="mb-2">
 		<mat-list-item [routerLink]="['/chatroom']" [routerLinkActive]="['active']">
-			<a matLine>Home 1</a>
+			<a matLine>Home</a>
 		</mat-list-item>
 	</mat-nav-list>
 	<div class="d-flex justify-content-center">

@@ -11,10 +11,9 @@
                     </mat-button-toggle>
                 </mat-button-toggle-group>
                 <div [ngSwitch]="selectedUpperButtonToggle">
-                    <app-chatroom-list (selectedChatroomEmitter)="updateChatroom($event)" *ngSwitchCase="'chatroomList'"></app-chatroom-list>
-                    <div *ngSwitchCase="'usersList'"></div>
+                    <app-chatroom-list *ngSwitchCase="'chatroomList'"></app-chatroom-list>
+                    <app-user-list *ngSwitchCase="'usersList'"></app-user-list>
                 </div>
-                <div>{{ selectedUpperButtonToggle }}</div>
             </div>
         </div>
     </div>

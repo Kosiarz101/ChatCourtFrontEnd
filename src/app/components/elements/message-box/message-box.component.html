@@ -1,0 +1,42 @@
+<div style="width: 90%;">
+    <div class="row d-flex mx-1 my-2">
+        <div class="d-inline-flex p-0 justify-content-center" style=" width: 48px; margin-right: 4px;">
+            <div class="d-flex" style="border: solid red;width: 48px; height: 64px;">
+                <mat-icon>account_box</mat-icon>
+            </div>
+        </div>
+        <div class="col-9" style=" width: 80%">
+            <div class="d-flex flex-row" >
+                <div class="d-flex" style="margin: 0px; padding: 0px; font-weight: bold;">{{this.author!.user!.username}}</div>
+                <div class="d-flex" style="margin: 0px 0px 0px 10px; padding: 0px; color: gray">{{this.message!.creationDate | date: 'medium'}}</div>
+            </div>
+            <div class="row" >
+                <div class="d-flex align-items-center" [ngStyle]="{'background-color': getMessageColor(), 'color': 'white',
+                'padding': '15px', 'border-radius': '6px'}">
+                    <p class="d-flex" style="margin: 0px; font-size: 16px;">{{this.message!.content}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex p-0" style=" width: 10%;">
+            <div class="d-flex" >
+                <button mat-icon-button style="width: 100%; height: 100%; margin-left: 6px;">
+                    <mat-icon> insert_emoticon</mat-icon>
+                </button>
+            </div>
+            <div class="d-flex" >
+                <button mat-icon-button style="width: 100%; height: 100%; margin-left: 6px;">
+                    <mat-icon>reply</mat-icon>
+                </button>
+            </div>
+            <div class="d-flex" *ngIf="this.message!.authorId == this.currentUserId" >
+                <button mat-icon-button [matMenuTriggerFor]="more_menu" style="width: 100%; height: 100%; margin-left: 6px;">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #more_menu="matMenu" xPosition="after">
+                    <button mat-menu-item (click)="updateMessage()">Edit</button>
+                    <button mat-menu-item (click)="deleteMessage()">Delete</button>
+                </mat-menu>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,6 +17,7 @@ import { ChatPanelComponent } from './components/elements/chat-panel/chat-panel.
 import { UserListComponent } from './components/elements/user-list/user-list.component';
 import { JWTInterceptor } from './interceptors/jwt.interceptor';
 import { ChatroomSearchComponent } from './components/views/chatroom-search/chatroom-search.component';
+import { MessageBoxComponent } from './components/elements/message-box/message-box.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { ChatroomSearchComponent } from './components/views/chatroom-search/chat
     ChatroomListComponent,
     ChatPanelComponent,
     UserListComponent,
-    ChatroomSearchComponent
+    ChatroomSearchComponent,
+    MessageBoxComponent
   ],
   imports: [
     BrowserModule,

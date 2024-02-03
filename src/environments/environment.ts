@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   chatServerUrl: 'https://localhost:8191',
-  webSocketUrl: 'wss://localhost:8191/ws'
+  webSocketUrl: 'wss://localhost:8191/ws',
+  stompEndpoint: '/topic/public'
 };
 
 /*
