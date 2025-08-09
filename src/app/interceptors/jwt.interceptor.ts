@@ -13,7 +13,7 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class JWTInterceptor implements HttpInterceptor {
 
-  private notFilter = ['/auth/login']
+  private excludedEndpoints = ['/auth/login']
 
   constructor(private router: Router) {}
 
@@ -22,7 +22,7 @@ export class JWTInterceptor implements HttpInterceptor {
       withCredentials: true
     });
 
-    if (this.notFilter.some(x => request.url.includes(environment.chatServerUrl + x))) {
+    if (this.excludedEndpoints.some(endpoint => request.url.includes(environment.chatServerUrl + endpoint))) {
       return next.handle(request);
     }
 

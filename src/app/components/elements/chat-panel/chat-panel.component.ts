@@ -44,6 +44,21 @@ export class ChatPanelComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.subscribeToActiveChatroomId())
   }
 
+  public getNextPageOfMessages() {
+    return this.subscriptions.push(this.chatroomManager.getActiveChatroomId().pipe(first()).subscribe(id => {
+      let startDate = this.selectedChatroom.messages![0].creationDate
+      this.messageService.getMessagesBefore(id!, startDate).pipe(first()).subscribe(response => {
+        let messages = response.body?.content as Array<Message>
+        this.selectedChatroom.messages?.unshift(...messages)
+        this.selectedChatroom.messages?.sort((a,b) => 
+          new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
+        )
+        this.selectedChatroom$.next(this.selectedChatroom)
+        this.hasNext = !response.body?.last;
+      })
+    }))
+  }
+
   public sendMessage(content: string, sendButton: MatButton) {
     if (this.isUpdated) {
       this.chosenMessage!.content = content
@@ -66,9 +81,23 @@ export class ChatPanelComponent implements OnInit, OnDestroy {
 
   public updateMessage(message: Message, sendButton: MatButton) {
     this.chosenMessage = message
-    this.messageContent = message.content;
+    this.messageContent = message.content
     this.isUpdated = true
     sendButton.disabled = false
+  }
+
+  public deleteMessage(messageId: string) {
+    this.messageService.deleteMessage(messageId)
+  }
+
+  public getAuthorOfMessage(authorId: String): ChatroomUser | undefined {
+    if (this.selectedChatroom.users != undefined)
+      return this.selectedChatroom.users!.find(x => x.user.id == authorId)!
+    return undefined;
+  }
+
+  public getChosenMessageId() : string | undefined {
+    return this.chosenMessage?.id
   }
 
   public cancelText(sendButton: MatButton) {
@@ -80,37 +109,12 @@ export class ChatPanelComponent implements OnInit, OnDestroy {
 
   public isMessageBoxEmpty(value: string, sendButton: MatButton) {
     if (value.trim() == '') {
-      sendButton.disabled = true;
+      sendButton.disabled = true
     } else {
       sendButton.disabled = false
     }
   }
 
-  public getNextPageOfMessages() {
-    return this.subscriptions.push(this.chatroomManager.getActiveChatroomId().pipe(first()).subscribe(id => {
-      let startDate = this.selectedChatroom.messages![0].creationDate
-      this.messageService.getMessagesBefore(id!, startDate).pipe(first()).subscribe(response => {
-        let messages = response.body?.content as Array<Message>
-        this.selectedChatroom.messages?.unshift(...messages)
-        this.selectedChatroom.messages?.sort((a,b) => 
-          new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
-        )
-        this.selectedChatroom$.next(this.selectedChatroom)
-        this.hasNext = !response.body?.last;
-      })
-    }))
-  }
-
-  public getChosenMessageId() : string | undefined {
-    return this.chosenMessage != undefined ? this.chosenMessage.id : undefined;
-  }
-
-  public getAuthorOfMessage(authorId: String): ChatroomUser | undefined {
-    if (this.selectedChatroom.users != undefined)
-      return this.selectedChatroom.users!.find(x => x.user.id == authorId)!;
-    return undefined;
-  }
-  
   private subscribeToActiveChatroomId(): Subscription {
     return this.chatroomManager.getActiveChatroomId().subscribe(id => {
       this.hasNext = true;
@@ -121,10 +125,6 @@ export class ChatPanelComponent implements OnInit, OnDestroy {
       this.selectedChatroom$.next(this.selectedChatroom)
       console.log('im in active chatroomid, selectedRoom = ', this.selectedChatroom)
     });
-  }
-
-  private existsCurrentUserId(): boolean {
-    return this.sessionService.exists(this.sessionService.idKey)
   }
 
   ngOnDestroy(): void {

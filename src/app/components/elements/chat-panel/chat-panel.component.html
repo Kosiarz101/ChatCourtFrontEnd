@@ -11,7 +11,8 @@
     </button> 
     <div *ngFor="let message of selectedChatroomSubject.messages">  
         <app-message-box [ngClass]="(message.authorId == this.currentUserId ? 'row mb-2 justify-content-end' : 'row mb-2 justify-content-start')" 
-        [message]="message" [author]="getAuthorOfMessage(message.authorId)" [currentUserId]="this.currentUserId" [chosenMessageId]="getChosenMessageId()" (updateMessageEvent)="updateMessage($event, sendButton)"></app-message-box>
+        [message]="message" [author]="getAuthorOfMessage(message.authorId)" [currentUserId]="this.currentUserId" [chosenMessageId]="getChosenMessageId()" 
+        (updateMessageEvent)="updateMessage($event, sendButton)" (deleteMessageEvent)="deleteMessage($event)"></app-message-box>
     </div>
     <div class="row mt-1">
         <div class="col-10">

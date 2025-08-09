@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ChatroomUser } from 'src/app/interfaces/entities/chatroom-user';
 import { Message } from 'src/app/interfaces/entities/message';
-import { MessageService } from 'src/app/services/chatserver/message.service';
 
 @Component({
   selector: 'app-message-box',
@@ -15,10 +14,9 @@ export class MessageBoxComponent implements OnInit {
   @Input() chosenMessageId: string | undefined;
   @Input() public currentUserId: string | undefined;
   @Output() updateMessageEvent = new EventEmitter<Message>();
-  private messageSelectedColor: string = "rgb(37 37 37)"
-  private messageNormalColor: string = '#3f51b5'
+  @Output() deleteMessageEvent = new EventEmitter<string>();
 
-  constructor(private messageService: MessageService) {}
+  constructor() {}
 
   ngOnInit(): void {
   }
@@ -28,10 +26,14 @@ export class MessageBoxComponent implements OnInit {
   }
 
   public deleteMessage() {
-    this.messageService.deleteMessage(this.message!.id)
+    this.deleteMessageEvent.emit(this.message!.id)
   }
 
-  public getMessageColor() : string | undefined {
-    return (this.chosenMessageId != undefined && this.chosenMessageId == this.message!.id) ? this.messageSelectedColor : this.messageNormalColor
+  public isMessageSelected() : boolean {
+    return (this.chosenMessageId != undefined && this.chosenMessageId == this.message!.id)
+  }
+
+  public isMessageDefault() : boolean {
+    return (this.chosenMessageId == undefined || this.chosenMessageId != this.message!.id)
   }
 }

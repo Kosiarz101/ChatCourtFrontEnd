@@ -1,0 +1,7 @@
+.default-message {
+    background-color: #3f51b5;
+}
+
+.selected-message {
+    background-color: rgb(37 37 37);
+}

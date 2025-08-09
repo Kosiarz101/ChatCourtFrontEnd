@@ -17,7 +17,6 @@ export class ChatroomManagerService {
   constructor() { 
     this.chatrooms = new Map();
     this.chatrooms$ = new ReplaySubject(1);
-    this.chatrooms$
   }
 
   public init(chatroomArray: Array<ChatroomChatPanel>) {
@@ -50,6 +49,11 @@ export class ChatroomManagerService {
     let chatroom = this.chatrooms.get(chatroomId)!
     let index = chatroom.messages!.findIndex(m => m.id == newMessage.id)
     chatroom.messages![index] = newMessage
+  }
+
+  public deleteMessage(chatroomId: string, deletedMessage: Message) {
+    let chatroom = this.chatrooms.get(chatroomId)!
+    chatroom.messages = chatroom.messages!.filter(m => m.id !== deletedMessage.id)
   }
 
   public get(id: string): ChatroomChatPanel {

@@ -11,8 +11,8 @@
                 <div class="d-flex" style="margin: 0px 0px 0px 10px; padding: 0px; color: gray">{{this.message!.creationDate | date: 'medium'}}</div>
             </div>
             <div class="row" >
-                <div class="d-flex align-items-center" [ngStyle]="{'background-color': getMessageColor(), 'color': 'white',
-                'padding': '15px', 'border-radius': '6px'}">
+                <div class="d-flex align-items-center" [class.default-message]="isMessageDefault()" [class.selected-message]="isMessageSelected()"
+                style="color: white; padding: 15px; border-radius: 6px;">
                     <p class="d-flex" style="margin: 0px; font-size: 16px;">{{this.message!.content}}</p>
                 </div>
             </div>

@@ -1,6 +1,5 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { RxStomp } from '@stomp/rx-stomp';
 import { Observable } from 'rxjs';
 import { Slice } from 'src/app/interfaces/chatserver/slice';
 import { Message } from 'src/app/interfaces/entities/message';
@@ -13,7 +12,7 @@ import { RxStompService } from './rx-stomp.service';
 export class MessageService {
 
   private endpoint: string = "/message"
-  private stompEndpoint: string = ''
+  private stompEndpoint: string
 
   constructor(private httpClient: HttpClient, private rxStompService: RxStompService) { 
     this.stompEndpoint = '/app' + this.endpoint
@@ -28,10 +27,7 @@ export class MessageService {
   }
 
   public deleteMessage(id: string) {
-    let url = environment.chatServerUrl;
-    this.httpClient.delete(url + this.endpoint + '/' + id, {
-      observe: 'response'
-    })
+    this.rxStompService.publish({destination: `${this.stompEndpoint}/delete`, body: JSON.stringify(id)})
   }
 
   public getMessages(chatroomId: string, page: number): Observable<HttpResponse<Slice>> {

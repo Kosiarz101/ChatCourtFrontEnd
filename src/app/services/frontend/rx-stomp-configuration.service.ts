@@ -44,27 +44,34 @@ export class RxStompConfigurationService {
   }
 
   public addToStompWatch(chatroom: ChatroomChatPanel) {
-    let stompDestination = environment.stompEndpoint
+    let stompEndpoint = environment.stompEndpoint
     if (this.configuredIds.has(chatroom.id))
       return;
 
     // add message
-    this.rxStompService.watch(`${stompDestination}/message/add/${chatroom.id}`).subscribe((response: StompMessage) => {
+    this.rxStompService.watch(`${stompEndpoint}/message/add/${chatroom.id}`).subscribe((response: StompMessage) => {
       let responseEntity: ResponseEntity = JSON.parse(response.body)
-      console.log('new Message: ', responseEntity.body)
+      console.log('new message: ', responseEntity.body)
       this.tryAddToNotifications(chatroom)
       this.chatroomManager.addMessage(chatroom.id, responseEntity.body as Message)
     })
 
     // update message
-    this.rxStompService.watch(`${stompDestination}/message/update/${chatroom.id}`).subscribe((response: StompMessage) => {
+    this.rxStompService.watch(`${stompEndpoint}/message/update/${chatroom.id}`).subscribe((response: StompMessage) => {
       let responseEntity: ResponseEntity = JSON.parse(response.body)
-      console.log('updated Message: ', responseEntity.body)
+      console.log('updated message: ', responseEntity.body)
       this.chatroomManager.updateMessage(chatroom.id, responseEntity.body as Message)
     })
 
+    // delete message
+    this.rxStompService.watch(`${stompEndpoint}/message/delete/${chatroom.id}`).subscribe((response: StompMessage) => {
+      let responseEntity: ResponseEntity = JSON.parse(response.body)
+      console.log('deleted message id: ', responseEntity.body)
+      this.chatroomManager.deleteMessage(chatroom.id, responseEntity.body as Message)
+    })
+
     // add chatroom-user
-    this.rxStompService.watch(`${stompDestination}/chatroom-user/add/${chatroom.id}`).subscribe((response: StompMessage) => {
+    this.rxStompService.watch(`${stompEndpoint}/chatroom-user/add/${chatroom.id}`).subscribe((response: StompMessage) => {
       let responseEntity: ResponseEntity = JSON.parse(response.body)
       console.log('add user: ', responseEntity.body)
       this.chatroomManager.addChatroomUser(chatroom.id, responseEntity.body as ChatroomUser)
